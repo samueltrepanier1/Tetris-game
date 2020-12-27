@@ -15,10 +15,21 @@ GRID_WIDTH = SCREEN_WIDTH / GRID_SIZE
 GRID_HEIGTH = SCREEN_HEIGTH / GRID_SIZE
 LOWER_BOUND = GRID_HEIGTH - 2
 
-w, h = 22, 22
+w, h = 23, 23
 GameMatrix = [[0 for x in range(w)] for y in range(h)]
 
 
+ColorRef = {
+  1 : (43, 240, 233), #cyan
+  2 : (242, 182, 78), #orange
+  3 : (32, 64, 227),  #blue
+  4:  (233, 240, 43), #yellow
+  5:  (43, 240, 82),  #green
+  6:  (191, 43, 240), #purple
+  7:  (240, 43, 43) #red
+}
+
+TypeList = ["I", "J", "L", "O", "S", "T", "Z"]
 
 
 def print_matrix(matrix):
@@ -32,8 +43,13 @@ class Block(object):
         self.blocks = []
         self.abs_pos = [[0, 0], [0, 0], [0, 0], [0, 0]]
         self.rotation_index = 0
-        self.center_pos = [0, 0]
+        self.center_pos = [11, 0]
         self.color = (76,75,44)
+        self.active = True
+        self.matrice_generated = False
+        self.can_go_down = True
+        self.generate_matrix()
+        self.init_abs()
 
     def generate_matrix(self):
 
@@ -161,6 +177,25 @@ class Block(object):
         self.center_pos[0] = self.center_pos[0] +1
         self.calculate_abs()
 
+    def fill_matrix(self, matrix):
+
+        for block in self.abs_pos:
+            print(block[0])
+            print(block[1])
+            matrix[block[0]][block[1]] = (TypeList.index(self.type)) + 1
+
+        self.matrice_generated = True
+
+    def Can_go_down(self, matrix):
+
+        for block in self.abs_pos:
+            if matrix[block[1]-1][block[0]] >= 1:
+                self.can_go_down = False
+
+
+
+
+
 
 
 
@@ -180,6 +215,14 @@ def drawGrid(surface):
                 pygame.draw.rect(surface, (0, 0, 0), rrr)
 
 
+def drawMatrix(surface, matrix):
+
+    for i in range(len(matrix)):
+        for y in range(len(matrix[i])):
+            if GameMatrix[i][y] >= 1:
+                rrr = pygame.Rect((i * GRID_SIZE, y * GRID_SIZE), (GRID_SIZE, GRID_SIZE))
+                pygame.draw.rect(surface, ColorRef[matrix[i][y]], rrr)
+
 def search(list, value):
     for i in range(len(list)):
         if list[i][1] == value:
@@ -187,38 +230,51 @@ def search(list, value):
     return False
 
 
+
+
 def main():
 
+
     newblock = Block()
-    newblock.generate_matrix()
-    newblock.center_pos = [5, 5]
-    newblock.init_abs()
-
-
     pygame.init()
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode((SCREEN_HEIGTH,SCREEN_HEIGTH), 0, 32)
-
     surface = pygame.Surface(screen.get_size())
     surface = surface.convert()
     drawGrid(surface)
-
-    print_matrix(GameMatrix)
-
 
 
     while True:
 
         clock.tick(5)
+
         drawGrid(surface)
+        drawMatrix(surface, GameMatrix)
+
         newblock.handle_keys()
         newblock.draw(surface)
 
-        if not (search(newblock.abs_pos, LOWER_BOUND)):
+        newblock.Can_go_down(GameMatrix)
+        if (not (search(newblock.abs_pos, LOWER_BOUND))) and newblock.can_go_down:
             newblock.down()
+
+        elif (search(newblock.abs_pos, LOWER_BOUND)):
+            newblock.active = False
+
+
+        if newblock.active == False:
+            if newblock.matrice_generated == False:
+                 newblock.fill_matrix(GameMatrix)
+                 newblock.__init__()
+                 print(newblock.can_go_down)
+
 
         screen.blit(surface, (0, 0))
         pygame.display.update()
+
+        print("Can go down = " +str(newblock.can_go_down))
+        print(newblock.active)
+
 
 
 
