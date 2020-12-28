@@ -40,6 +40,7 @@ class Block(object):
 
     def __init__(self):
         self.type = random.choice(["I", "J", "L", "O", "S", "T", "Z"])
+        self.type = "O"
         self.blocks = []
         self.abs_pos = [[0, 0], [0, 0], [0, 0], [0, 0]]
         self.rotation_index = 0
@@ -189,8 +190,9 @@ class Block(object):
     def Can_go_down(self, matrix):
 
         for block in self.abs_pos:
-            if matrix[block[1]-1][block[0]] >= 1:
-                self.can_go_down = False
+            if block[1]+1 < 22:
+                 if matrix[block[0]][block[1]+1] >= 1:
+                        self.can_go_down = False
 
 
 
@@ -229,6 +231,18 @@ def search(list, value):
             return True
     return False
 
+#TODO supprimer la ligne
+def DeleteLine(matrix):
+
+    for line in matrix:
+        i = 0
+        for e in line:
+            if e >= 1:
+                i = i + 1
+            if(i >= 21):
+                print("DeleteLine")
+
+
 
 
 
@@ -236,6 +250,7 @@ def main():
 
 
     newblock = Block()
+
     pygame.init()
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode((SCREEN_HEIGTH,SCREEN_HEIGTH), 0, 32)
@@ -255,25 +270,27 @@ def main():
         newblock.draw(surface)
 
         newblock.Can_go_down(GameMatrix)
+        print(newblock.can_go_down)
         if (not (search(newblock.abs_pos, LOWER_BOUND))) and newblock.can_go_down:
             newblock.down()
 
-        elif (search(newblock.abs_pos, LOWER_BOUND)):
+        else:
             newblock.active = False
 
-
+        print(GameMatrix[10][21])
         if newblock.active == False:
             if newblock.matrice_generated == False:
                  newblock.fill_matrix(GameMatrix)
                  newblock.__init__()
-                 print(newblock.can_go_down)
+                 newblock.type = "O"
 
 
+        DeleteLine(GameMatrix)
         screen.blit(surface, (0, 0))
         pygame.display.update()
 
-        print("Can go down = " +str(newblock.can_go_down))
-        print(newblock.active)
+
+
 
 
 
