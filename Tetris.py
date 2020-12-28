@@ -40,7 +40,6 @@ class Block(object):
 
     def __init__(self):
         self.type = random.choice(["I", "J", "L", "O", "S", "T", "Z"])
-        self.type = "O"
         self.blocks = []
         self.abs_pos = [[0, 0], [0, 0], [0, 0], [0, 0]]
         self.rotation_index = 0
@@ -149,13 +148,13 @@ class Block(object):
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
+                if event.key == pygame.K_LEFT:
                     self.left()
-                elif event.key == pygame.K_DOWN:
-                    self.rigth()
-                elif event.key == pygame.K_LEFT:
-                    self.ccw_rotation()
                 elif event.key == pygame.K_RIGHT:
+                    self.rigth()
+                elif event.key == pygame.K_q:
+                    self.ccw_rotation()
+                elif event.key == pygame.K_e:
                     self.cw_rotation()
 
 
@@ -282,8 +281,6 @@ def main():
             if newblock.matrice_generated == False:
                  newblock.fill_matrix(GameMatrix)
                  newblock.__init__()
-                 newblock.type = "O"
-
 
         DeleteLine(GameMatrix)
         screen.blit(surface, (0, 0))
