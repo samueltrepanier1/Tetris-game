@@ -23,7 +23,7 @@ NumberPerRow = [0 for x in range(w-1)]
 #TODO : Fix bug with the border (can_go_left or can_go_rigth) stay false
 #TODO : Implement rotation verification system
 #TODO : Create a class for the matrix and the game?
-
+#TODO : Stop condition (game over?)
 
 ColorRef = {
   1 : (43, 240, 233), #cyan
