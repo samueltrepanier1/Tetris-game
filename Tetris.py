@@ -20,7 +20,9 @@ w, h = 22, 12
 GameMatrix = [[0 for x in range(w)] for y in range(h)]
 NumberPerRow = [0 for x in range(w-1)]
 
-
+#TODO : Fix bug with the border (can_go_left or can_go_rigth) stay false
+#TODO : Implement rotation verification system
+#TODO : Create a class for the matrix and the game?
 
 
 ColorRef = {
@@ -56,6 +58,7 @@ class Block(object):
         self.can_go_right = True
         self.generate_matrix()
         self.init_abs()
+        #should be in a class called Game
         self.speed = 5
 
     def generate_matrix(self):
@@ -217,7 +220,6 @@ class Block(object):
             if matrix[block[0]-1][block[1]] >= 1 or block[0] == 1:
                 self.can_go_left = False
 
-
         return self.can_go_left
 
     def Can_go_right(self, matrix):
@@ -301,7 +303,9 @@ def main():
     surface = surface.convert()
     drawGrid(surface)
     i = 0
-    speed = 10
+    myfont = pygame.font.SysFont("monospace", 16)
+    score = 0
+
 
     while True:
 
@@ -312,6 +316,7 @@ def main():
 
 
         if (checkLine(NumberPerRow) > 0):
+            score += 1
             Line = checkLine(NumberPerRow)
             removeLineMatrix(GameMatrix,Line)
             del NumberPerRow[Line]
@@ -343,6 +348,12 @@ def main():
                  newblock.__init__()
 
         screen.blit(surface, (0, 0))
+
+
+
+        text_head = myfont.render("Score = {0}".format(score), 1, (255, 255, 255))
+        screen.blit(text_head, (5, 0))
+
         pygame.display.update()
 
 
