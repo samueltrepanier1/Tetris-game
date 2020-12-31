@@ -33,14 +33,9 @@ GRID_HEIGTH = SCREEN_HEIGTH / GRID_SIZE
 LOWER_BOUND = GRID_HEIGTH - 2
 
 
-w, h = 22, 12
-GameMatrix = [[0 for x in range(w)] for y in range(h)]
-NumberPerRow = [0 for x in range(w-1)]
-
-#TODO : Fix bug with the border (can_go_left or can_go_rigth) stay false
 #TODO : Implement rotation verification system
 #TODO : Create a class for the matrix and the game?
-#TODO : Stop condition (game over?)
+
 
 ColorRef = {
   1 : (43, 240, 233), #cyan
@@ -129,8 +124,6 @@ class Block(object):
             self.init_abs()
             self.calculate_abs()
 
-
-
     def ccw_rotation(self):
 
         if self.type != "O":
@@ -157,14 +150,6 @@ class Block(object):
             self.abs_pos[i][1] = self.blocks[i][1] + self.center_pos[1]
 
     def init_abs(self):
-
-        for block in self.abs_pos:
-            block[0] = 0
-            block[1] = 0
-
-
-
-    def init_abs(self):
         for i in range(len(self.abs_pos)):
             self.abs_pos[i][0] = self.blocks[i][0] + self.abs_pos[i][0] + self.center_pos[0]
             self.abs_pos[i][1] = self.blocks[i][1] + self.abs_pos[i][1] + self.center_pos[1]
@@ -177,7 +162,7 @@ class Block(object):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT and self.Can_go_left(matrix):
                     self.left()
-                elif event.key == pygame.K_RIGHT and self.Can_go_right(GameMatrix):
+                elif event.key == pygame.K_RIGHT and self.Can_go_right(matrix):
                     self.rigth()
                 elif event.key == pygame.K_UP:
                     self.ccw_rotation()
@@ -209,16 +194,18 @@ class Block(object):
 
         self.center_pos[0] = self.center_pos[0] -1
         self.calculate_abs()
+        self.can_go_right = True
 
     def rigth(self):
         self.center_pos[0] = self.center_pos[0] +1
         self.calculate_abs()
+        self.can_go_left = True
 
     def fill_matrix(self, matrix):
 
         for block in self.abs_pos:
-                  matrix[block[0]][block[1]] = (TypeList.index(self.type)) + 1
-                  NumberPerRow[block[1]] += 1
+                  matrix.Grid[block[0]][block[1]] = (TypeList.index(self.type)) + 1
+                  matrix.NumberPerRow[block[1]] += 1
 
         self.matrice_generated = True
 
@@ -249,9 +236,54 @@ class Block(object):
 
         return self.can_go_right
 
+    def valid_pos(self, matrix):
+
+          is_valid = True
+          for block in self.abs_pos:
+            if matrix[block[0]][block[1]] >= 1 or block[0] > 10 or block[0] < 1:
+                is_valid = False
+          return is_valid
 
 
 
+
+
+class Matrix(object):
+
+    def __init__(self):
+        self.Width = 22
+        self.Heigth = 12
+        self.Grid = [[0 for x in range(self.Width)] for y in range(self.Heigth)]
+        self.NumberPerRow = [0 for x in range(self.Width-1)]
+
+    def drawMatrix(self, surface):
+
+        for i in range(len(self.Grid)):
+            for y in range(len(self.Grid[i])):
+                if self.Grid[i][y] >= 1:
+                    rrr = pygame.Rect((i * GRID_SIZE, y * GRID_SIZE), (GRID_SIZE, GRID_SIZE))
+                    pygame.draw.rect(surface, ColorRef[self.Grid[i][y]], rrr, border_radius=3)
+                    pygame.draw.rect(surface, (255, 255, 255), rrr, border_radius=3, width=2)
+
+    def removeLine(self, Line):
+
+        for col in self.Grid:
+            del col[Line]
+            col.insert(0, 0)
+
+    def check_Line(self):
+
+        value = -1
+        for line in self.NumberPerRow:
+            if line == 10:
+                value = self.NumberPerRow.index(10)
+
+        return value
+
+    def print_matrix(self):
+
+        for row in self.Grid:
+            print(row)
 
 def drawGrid(surface):
     for y in range(0,int(GRID_HEIGTH)):
@@ -268,39 +300,11 @@ def drawGrid(surface):
                 rrr = pygame.Rect((x * GRID_SIZE, y * GRID_SIZE), (GRID_SIZE, GRID_SIZE))
                 pygame.draw.rect(surface, (0, 0, 0), rrr)
 
-
-def drawMatrix(surface, matrix):
-
-    for i in range(len(matrix)):
-        for y in range(len(matrix[i])):
-            if GameMatrix[i][y] >= 1:
-                rrr = pygame.Rect((i * GRID_SIZE, y * GRID_SIZE), (GRID_SIZE, GRID_SIZE))
-                pygame.draw.rect(surface, ColorRef[matrix[i][y]], rrr, border_radius=3,)
-                pygame.draw.rect(surface, (255,255,255), rrr, border_radius=3, width = 2)
-
-
 def search(list, value):
     for i in range(len(list)):
         if list[i][1] == value:
             return True
     return False
-
-
-def removeLineMatrix(Matrix, Line):
-
-   for col in Matrix:
-       del col[Line]
-       col.insert(0,0)
-
-def checkLine(LineArray):
-
-    value = -1
-    for line in LineArray:
-        if line == 10:
-          value = LineArray.index(10)
-
-    return value
-
 
 
 
@@ -312,6 +316,7 @@ def main():
 
 
     newblock = Block()
+    matrix = Matrix()
 
     pygame.init()
     clock = pygame.time.Clock()
@@ -322,34 +327,33 @@ def main():
     i = 0
     myfont = pygame.font.SysFont("monospace", 16)
     score = 0
-
+    End_of_game = False
 
 
     while True:
 
+        print(newblock.valid_pos(matrix.Grid))
+
         clock.tick(newblock.speed)
 
-
-
-
-
-        if (checkLine(NumberPerRow) > 0):
+        if (matrix.check_Line() > 0):
             score += 1
-            Line = checkLine(NumberPerRow)
-            removeLineMatrix(GameMatrix,Line)
-            del NumberPerRow[Line]
-            NumberPerRow.insert(0, 0)
-
-
+            Line = matrix.check_Line()
+            matrix.removeLine(Line)
+            del matrix.NumberPerRow[Line]
+            matrix.NumberPerRow.insert(0,0)
 
 
         drawGrid(surface)
-        drawMatrix(surface, GameMatrix)
+        matrix.drawMatrix(surface)
 
-        newblock.handle_keys(GameMatrix)
+
+        if End_of_game == False:
+            newblock.handle_keys(matrix.Grid)
+
         newblock.draw(surface)
 
-        newblock.Can_go_down(GameMatrix)
+        newblock.Can_go_down(matrix.Grid)
         if (not (search(newblock.abs_pos, LOWER_BOUND))) and newblock.can_go_down:
             i = i + 1
             if i == 2:
@@ -362,23 +366,21 @@ def main():
 
         if newblock.active == False:
             if newblock.matrice_generated == False:
-                 newblock.fill_matrix(GameMatrix)
-                 newblock.__init__()
+                 newblock.     fill_matrix(matrix)
+                 if (End_of_game == False):
+                     newblock.__init__()
+                     newblock.Can_go_down(matrix.Grid)
+                     if (newblock.can_go_down == False):
+                        End_of_game = True
+
+
 
         screen.blit(surface, (0, 0))
-
-
-
         text_head = myfont.render("Score = {0}".format(score), 1, (255, 255, 255))
         screen.blit(text_head, (5, 0))
-
         pygame.display.update()
-
-
-
         drawGrid(surface)
-        drawMatrix(surface, GameMatrix)
-
+        matrix.drawMatrix(surface)
 
 
 main()
