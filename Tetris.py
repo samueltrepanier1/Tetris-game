@@ -6,6 +6,23 @@ import math
 
 tab_offset = [[1, 1], [0, 0], [0, 0], [1, 1]]
 
+#For J,L,S,T and Z
+kick_offset = [
+    [(0, 0), (0, 0), (0, 0), (0, 0), (0, 0)],    #rotation index = 0
+    [(0, 0), (1, 0), (1, -1), (0, 2), (1, 2)],   #rotation index = 1
+    [(0, 0), (0, 0), (0, 0), (0, 0), (0, 0)],    #rotation index = 2
+    [(0, 0), (-1, 0), (-1, -1), (0, 2), (-1, 2)] #rotation index = 3
+]
+
+kick_offset_I =  [
+    [(0, 0), (-1, 0), (2, 0), (-1, 0), (2, 0)],     #rotation index = 0
+    [(-1, 0), (0, 0), (0, 0), (0, 1), (0, -2)],     #rotation index = 1
+    [(-1, 1), (1, 1), (-2, 1), (1, 0), (-2, 0)],    #rotation index = 2
+    [(0, 1), (0, 1), (0, 1), (0, -1), (0, 2)]       #rotation index = 3
+]
+
+
+
 SCREEN_WIDTH = 240
 SCREEN_HEIGTH = 440
 
@@ -305,6 +322,7 @@ def main():
     i = 0
     myfont = pygame.font.SysFont("monospace", 16)
     score = 0
+
 
 
     while True:
