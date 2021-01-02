@@ -313,6 +313,8 @@ def draw_square(surface):
 
 
 
+
+
 def main():
 
     new_block = Block()
@@ -326,7 +328,7 @@ def main():
     surface = pygame.Surface(screen.get_size())
     surface = surface.convert()
     draw_grid(surface)
-    my_font = pygame.font.SysFont("monospace", 16)
+    my_font = pygame.font.SysFont("roboto", 16)
 
     i = 0
     score = 0
@@ -355,9 +357,16 @@ def main():
         if not end:
             new_block.handle_keys(matrix.Grid)
 
+
+        if end:
+            rrr = pygame.Rect((60, 200), (GRID_SIZE * 12, GRID_SIZE * 3))
+            pygame.draw.rect(surface, (50, 50, 50), rrr, border_radius=0)
+            pygame.draw.rect(surface, (100, 100, 100), rrr, width = 5)
+
         new_block.draw(surface)
         next_block.calculate_abs()
-        next_block.draw(surface)
+        if not end:
+            next_block.draw(surface)
 
 
         new_block.can_go_down(matrix.Grid)
@@ -394,6 +403,11 @@ def main():
         text_head = my_font.render("Score = {0}".format(score), True, (255, 255, 255))
         next = my_font.render("Next :", True, (255, 255, 255))
         screen.blit(next, (240, 160))
+
+        if end:
+            GameOver = my_font.render("Game Over, your score is = {0}".format(score), True, (255, 255, 255))
+            screen.blit(GameOver, (SCREEN_WIDTH/2-50, SCREEN_HEIGHT/2))
+
 
         screen.blit(text_head, (240, 60))
         pygame.display.update()
