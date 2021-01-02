@@ -28,7 +28,9 @@ GRID_HEIGHT = SCREEN_HEIGHT / GRID_SIZE
 LOWER_BOUND = GRID_HEIGHT - 2
 
 # TODO : Implement rotation verification system
-# TODO : Create a class for the matrix and the game?
+# TODO : Create a class for the game?
+# TODO : Bloc falling if nothing under
+
 
 ColorRef = {
     1: (43, 240, 233),  # cyan
@@ -163,7 +165,7 @@ class Block(object):
                     self.cw_rotation()
 
                 elif event.key == pygame.K_SPACE:
-                    self.speed = 30
+                    self.speed = 100
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
@@ -175,6 +177,7 @@ class Block(object):
             r = pygame.Rect((block[0] * GRID_SIZE, block[1] * GRID_SIZE), (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(surface, self.color, r, border_radius=3, )
             pygame.draw.rect(surface, (255, 255, 255), r, border_radius=3, width=2)
+
 
     def down(self):
 
@@ -252,6 +255,13 @@ class Matrix(object):
                     pygame.draw.rect(surface, ColorRef[self.Grid[i][y]], rrr, border_radius=3)
                     pygame.draw.rect(surface, (255, 255, 255), rrr, border_radius=3, width=2)
 
+    def draw_before_del(self, surface, line):
+
+        for i in range(1, len(self.Grid)-1):
+
+            rrr = pygame.Rect((i * GRID_SIZE, line * GRID_SIZE), (GRID_SIZE+1, GRID_SIZE+1))
+            pygame.draw.rect(surface, (225, 225, 225), rrr)
+
     def remove_line(self, line):
 
         for col in self.Grid:
@@ -291,43 +301,64 @@ def draw_grid(surface):
 
 def search(this_list, value):
     for i in range(len(this_list)):
-        if list[i][1] == value:
+        if this_list[i][1] == value:
             return True
     return False
 
+def draw_square(surface):
+
+    rrr = pygame.Rect((240, 190), (GRID_SIZE*5, GRID_SIZE*5))
+    pygame.draw.rect(surface, (0, 0, 0), rrr, border_radius=0)
+
+
+
 
 def main():
+
     new_block = Block()
     matrix = Matrix()
+    next_block = Block()
+    next_block.center_pos = [14, 10]  # for the preview
 
     pygame.init()
     clock = pygame.time.Clock()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
+    screen = pygame.display.set_mode((SCREEN_WIDTH+120, SCREEN_HEIGHT), 0, 32)
     surface = pygame.Surface(screen.get_size())
     surface = surface.convert()
     draw_grid(surface)
-    i = 0
     my_font = pygame.font.SysFont("monospace", 16)
+
+    i = 0
     score = 0
     end = False
 
     while True:
+
         clock.tick(new_block.speed)
+
+        draw_grid(surface)
+        draw_square(surface)
+        matrix.draw(surface)
+
+
 
         if matrix.check_line() > 0:
             score += 1
             line = matrix.check_line()
+            matrix.draw_before_del(surface, line)
             matrix.remove_line(line)
             del matrix.NumberPerRow[line]
             matrix.NumberPerRow.insert(0, 0)
 
-        draw_grid(surface)
-        matrix.draw(surface)
+
 
         if not end:
             new_block.handle_keys(matrix.Grid)
 
         new_block.draw(surface)
+        next_block.calculate_abs()
+        next_block.draw(surface)
+
 
         new_block.can_go_down(matrix.Grid)
         if (not (search(new_block.abs_pos, LOWER_BOUND))) and new_block.value_can_go_down:
@@ -343,17 +374,32 @@ def main():
             if not new_block.matrix_generated:
                 new_block.fill_matrix(matrix)
                 if not end:
+
                     new_block.__init__()
+                    new_block.type = next_block.type
+                    new_block.color = next_block.color
+                    new_block.generate_matrix()
+                    new_block.calculate_abs()
                     new_block.can_go_down(matrix.Grid)
+
+                    next_block.__init__()
+                    next_block.center_pos = [14, 10]
+
+
+
                     if not new_block.value_can_go_down:
                         end = True
 
         screen.blit(surface, (0, 0))
         text_head = my_font.render("Score = {0}".format(score), True, (255, 255, 255))
-        screen.blit(text_head, (5, 0))
+        next = my_font.render("Next :", True, (255, 255, 255))
+        screen.blit(next, (240, 160))
+
+        screen.blit(text_head, (240, 60))
         pygame.display.update()
         draw_grid(surface)
         matrix.draw(surface)
+        pygame.init()
 
 
 main()
