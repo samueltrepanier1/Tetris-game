@@ -42,6 +42,19 @@ ColorRef = {
     7: (240, 43, 43)  # red
 }
 
+
+ColorRefDark = {
+    1: (26, 145, 132),  # cyan
+    2: (189, 139, 62),  # orange
+    3: (32, 64, 227),  # blue
+    4: (233, 240, 43),  # yellow
+    5: (43, 240, 82),  # green
+    6: (191, 43, 240),  # purple
+    7: (240, 43, 43)  # red
+}
+
+
+
 TypeList = ["I", "J", "L", "O", "S", "T", "Z"]
 
 
@@ -59,6 +72,8 @@ class Block(object):
         self.rotation_index = 0
         self.center_pos = [5, 0]
         self.color = (76, 75, 44)
+        self.darkcolor = (0, 0, 0)
+        self.ligthcolor = (0, 0, 0)
         self.active = True
         self.matrix_generated = False
         self.value_can_go_down = True
@@ -74,30 +89,45 @@ class Block(object):
         if self.type == "I":
             self.blocks = [[-1, 0], [0, 0], [1, 0], [2, 0]]
             self.color = (43, 240, 233)  # cyan
+            self.darkcolor = (26, 145, 132)
+            self.ligthcolor = (138, 255, 251)
 
         elif self.type == "J":
             self.blocks = [[-1, 1], [-1, 0], [0, 0], [1, 0]]
             self.color = (242, 182, 78)  # orange
+            self.darkcolor = (189, 139, 62)
+            self.ligthcolor = (252, 213, 129)
 
         elif self.type == "L":
             self.blocks = [[-1, 0], [0, 0], [1, 0], [1, 1]]
-            self.color = (32, 64, 227)  # blue
+            self.color = (32, 64, 227)
+            self.darkcolor = (25, 47, 163)  # blue
+            self.ligthcolor = (98, 120, 224)
 
         elif self.type == "O":
             self.blocks = [[0, 0], [1, 1], [0, 1], [1, 0]]
             self.color = (233, 240, 43)  # yellow
+            self.darkcolor = (201, 207, 52)
+            self.ligthcolor = (250, 255, 107)
 
         elif self.type == "S":
             self.blocks = [[-1, 0], [0, 0], [1, 0], [1, 1]]
             self.color = (43, 240, 82)  # green
+            self.darkcolor = (59, 184, 83)
+            self.ligthcolor = (89, 255, 122)
 
         elif self.type == "T":
             self.blocks = [[-1, 0], [0, 0], [0, 1], [1, 0]]
             self.color = (191, 43, 240)  # purple
+            self.darkcolor = (136, 45, 166)
+            self.ligthcolor = (232, 97, 209)
 
         elif self.type == "Z":
             self.blocks = [[-1, 1], [0, 1], [0, 0], [1, 0]]
             self.color = (240, 43, 43)  # red
+            self.darkcolor = (166, 38, 38)
+            self.ligthcolor = (255, 97, 97)
+
 
     def cw_rotation(self):
 
@@ -175,9 +205,30 @@ class Block(object):
 
         for block in self.abs_pos:
             r = pygame.Rect((block[0] * GRID_SIZE, block[1] * GRID_SIZE), (GRID_SIZE, GRID_SIZE))
-            pygame.draw.rect(surface, self.color, r, border_radius=3, )
-            pygame.draw.rect(surface, (255, 255, 255), r, border_radius=3, width=2)
+            pygame.draw.rect(surface, self.color, r, border_radius=0)
+            pygame.draw.polygon(surface, self.darkcolor, ((block[0] * GRID_SIZE+20, block[1] * GRID_SIZE+20),
+                                                       ((block[0] * GRID_SIZE), (block[1] * GRID_SIZE)+20),
+                                                       ((block[0] * GRID_SIZE) + 5, block[1] * GRID_SIZE + 15),
+                                                       ((block[0] * GRID_SIZE)+15, (block[1] * GRID_SIZE)+15),),
+                                                        width=0)
+            pygame.draw.polygon(surface, self.darkcolor, ((block[0] * GRID_SIZE+20, block[1] * GRID_SIZE),
+                                                       ((block[0] * GRID_SIZE)+20, (block[1] * GRID_SIZE)+20),
+                                                       ((block[0] * GRID_SIZE) + 15, block[1] * GRID_SIZE + 15),
+                                                       ((block[0] * GRID_SIZE)+15, (block[1] * GRID_SIZE)+5),),
+                                                        width=0)
+            pygame.draw.polygon(surface, self.ligthcolor, ((block[0] * GRID_SIZE, block[1] * GRID_SIZE),
+                                                       ((block[0] * GRID_SIZE), (block[1] * GRID_SIZE)+20),
+                                                       ((block[0] * GRID_SIZE) + 5, block[1] * GRID_SIZE + 15),
+                                                       ((block[0] * GRID_SIZE)+5, (block[1] * GRID_SIZE)+5),),
+                                                        width=0)
 
+            pygame.draw.polygon(surface, self.ligthcolor, ((block[0] * GRID_SIZE, block[1] * GRID_SIZE),
+                                                       ((block[0] * GRID_SIZE)+20, (block[1] * GRID_SIZE)),
+                                                       ((block[0] * GRID_SIZE) + 15, block[1] * GRID_SIZE + 5),
+                                                       ((block[0] * GRID_SIZE)+5, (block[1] * GRID_SIZE)+5),),
+                                                        width=0)
+
+            #pygame.draw.rect(surface, (255, 255, 255), r, border_radius=0, width=2)
 
     def down(self):
 
@@ -253,7 +304,14 @@ class Matrix(object):
                 if self.Grid[i][y] >= 1:
                     rrr = pygame.Rect((i * GRID_SIZE, y * GRID_SIZE), (GRID_SIZE, GRID_SIZE))
                     pygame.draw.rect(surface, ColorRef[self.Grid[i][y]], rrr, border_radius=3)
-                    pygame.draw.rect(surface, (255, 255, 255), rrr, border_radius=3, width=2)
+
+                    pygame.draw.polygon(surface, ColorRefDark[self.Grid[i][y]], (
+                                         (i * GRID_SIZE + 20, y * GRID_SIZE + 20),
+                                         (i * GRID_SIZE, y * GRID_SIZE + 20),
+                                         (i * GRID_SIZE + 5, y * GRID_SIZE + 15),
+                                         (i * GRID_SIZE + 15, y * GRID_SIZE + 15)),
+                                        width=0)
+
 
     def draw_before_del(self, surface, line):
 
@@ -336,6 +394,7 @@ def main():
 
     while True:
 
+
         clock.tick(new_block.speed)
 
         draw_grid(surface)
@@ -356,6 +415,7 @@ def main():
 
         if not end:
             new_block.handle_keys(matrix.Grid)
+
 
 
         if end:
