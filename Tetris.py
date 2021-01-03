@@ -46,11 +46,21 @@ ColorRef = {
 ColorRefDark = {
     1: (26, 145, 132),  # cyan
     2: (189, 139, 62),  # orange
-    3: (32, 64, 227),  # blue
-    4: (233, 240, 43),  # yellow
-    5: (43, 240, 82),  # green
-    6: (191, 43, 240),  # purple
-    7: (240, 43, 43)  # red
+    3: (25, 47, 163),  # blue
+    4: (201, 207, 52),  # yellow
+    5: (59, 184, 83),  # green
+    6: (136, 45, 166),  # purple
+    7: (166, 38, 38) # red
+}
+
+ColorRefLight = {
+    1: (138, 255, 251),  # cyan
+    2: (252, 213, 129),  # orange
+    3: (98, 120, 224),  # blue
+    4: (250, 255, 107),  # yellow
+    5: (89, 255, 122),  # green
+    6: (232, 97, 209),  # purple
+    7: (255, 97, 97)  # red
 }
 
 
@@ -88,45 +98,45 @@ class Block(object):
 
         if self.type == "I":
             self.blocks = [[-1, 0], [0, 0], [1, 0], [2, 0]]
-            self.color = (43, 240, 233)  # cyan
-            self.darkcolor = (26, 145, 132)
-            self.ligthcolor = (138, 255, 251)
+            self.color = ColorRef[1]  # cyan
+            self.darkcolor = ColorRefDark[1]
+            self.ligthcolor = ColorRefLight[1]
 
         elif self.type == "J":
             self.blocks = [[-1, 1], [-1, 0], [0, 0], [1, 0]]
-            self.color = (242, 182, 78)  # orange
-            self.darkcolor = (189, 139, 62)
-            self.ligthcolor = (252, 213, 129)
+            self.color = ColorRef[2]  # orange
+            self.darkcolor = ColorRefDark[2]
+            self.ligthcolor = ColorRefLight[2]
 
         elif self.type == "L":
             self.blocks = [[-1, 0], [0, 0], [1, 0], [1, 1]]
-            self.color = (32, 64, 227)
-            self.darkcolor = (25, 47, 163)  # blue
-            self.ligthcolor = (98, 120, 224)
+            self.color = ColorRef[3]
+            self.darkcolor = ColorRefDark[3]     # blue
+            self.ligthcolor = ColorRefLight[3]
 
         elif self.type == "O":
             self.blocks = [[0, 0], [1, 1], [0, 1], [1, 0]]
-            self.color = (233, 240, 43)  # yellow
-            self.darkcolor = (201, 207, 52)
-            self.ligthcolor = (250, 255, 107)
+            self.color =  ColorRef[4] # yellow
+            self.darkcolor = ColorRefDark[4]
+            self.ligthcolor = ColorRefLight[4]
 
         elif self.type == "S":
             self.blocks = [[-1, 0], [0, 0], [1, 0], [1, 1]]
-            self.color = (43, 240, 82)  # green
-            self.darkcolor = (59, 184, 83)
-            self.ligthcolor = (89, 255, 122)
+            self.color = ColorRef[5]  # green
+            self.darkcolor = ColorRefDark[5]
+            self.ligthcolor = ColorRefLight[5]
 
         elif self.type == "T":
             self.blocks = [[-1, 0], [0, 0], [0, 1], [1, 0]]
-            self.color = (191, 43, 240)  # purple
-            self.darkcolor = (136, 45, 166)
-            self.ligthcolor = (232, 97, 209)
+            self.color = ColorRef[6] # purple
+            self.darkcolor = ColorRefDark[6]
+            self.ligthcolor = ColorRefLight[6]
 
         elif self.type == "Z":
             self.blocks = [[-1, 1], [0, 1], [0, 0], [1, 0]]
-            self.color = (240, 43, 43)  # red
-            self.darkcolor = (166, 38, 38)
-            self.ligthcolor = (255, 97, 97)
+            self.color = ColorRef[7]  # red
+            self.darkcolor =  ColorRefDark[7]
+            self.ligthcolor =  ColorRefLight[7]
 
 
     def cw_rotation(self):
@@ -228,7 +238,9 @@ class Block(object):
                                                        ((block[0] * GRID_SIZE)+5, (block[1] * GRID_SIZE)+5),),
                                                         width=0)
 
-            #pygame.draw.rect(surface, (255, 255, 255), r, border_radius=0, width=2)
+
+
+
 
     def down(self):
 
@@ -303,14 +315,32 @@ class Matrix(object):
             for y in range(len(self.Grid[i])):
                 if self.Grid[i][y] >= 1:
                     rrr = pygame.Rect((i * GRID_SIZE, y * GRID_SIZE), (GRID_SIZE, GRID_SIZE))
-                    pygame.draw.rect(surface, ColorRef[self.Grid[i][y]], rrr, border_radius=3)
+                    pygame.draw.rect(surface, ColorRef[self.Grid[i][y]], rrr, border_radius=0)
 
                     pygame.draw.polygon(surface, ColorRefDark[self.Grid[i][y]], (
                                          (i * GRID_SIZE + 20, y * GRID_SIZE + 20),
                                          (i * GRID_SIZE, y * GRID_SIZE + 20),
                                          (i * GRID_SIZE + 5, y * GRID_SIZE + 15),
-                                         (i * GRID_SIZE + 15, y * GRID_SIZE + 15)),
-                                        width=0)
+                                         (i * GRID_SIZE + 15, y * GRID_SIZE + 15)),width= 0)
+
+                    pygame.draw.polygon(surface, ColorRefDark[self.Grid[i][y]], (
+                        (i * GRID_SIZE + 20, y * GRID_SIZE),
+                        (i * GRID_SIZE + 20, y * GRID_SIZE + 20),
+                        (i * GRID_SIZE + 15, y * GRID_SIZE + 15),
+                        (i * GRID_SIZE + 15, y * GRID_SIZE)), width=0)
+
+                    pygame.draw.polygon(surface, ColorRefLight[self.Grid[i][y]], (
+                        (i * GRID_SIZE , y * GRID_SIZE ),
+                        (i * GRID_SIZE , y * GRID_SIZE + 20),
+                        (i * GRID_SIZE + 5, y * GRID_SIZE + 15),
+                        (i * GRID_SIZE + 5, y * GRID_SIZE + 5)),width= 0)
+
+
+                    pygame.draw.polygon(surface, ColorRefLight[self.Grid[i][y]], (
+                        (i * GRID_SIZE, y * GRID_SIZE),
+                        (i * GRID_SIZE + 20, y * GRID_SIZE),
+                        (i * GRID_SIZE + 15, y * GRID_SIZE + 5),
+                        (i * GRID_SIZE + 5, y * GRID_SIZE+5)), width= 0)
 
 
     def draw_before_del(self, surface, line):
@@ -365,7 +395,7 @@ def search(this_list, value):
 
 def draw_square(surface):
 
-    rrr = pygame.Rect((240, 190), (GRID_SIZE*5, GRID_SIZE*5))
+    rrr = pygame.Rect((242, 190), (GRID_SIZE*5, GRID_SIZE*5))
     pygame.draw.rect(surface, (0, 0, 0), rrr, border_radius=0)
 
 
